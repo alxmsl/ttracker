@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"time"
-
-	"test/tracker"
 	"math/rand"
+	"time"
+	
+	"github.com/alxmsl/ttracker"
 )
 
 func init() {
