@@ -17,9 +17,9 @@ type (
 var (
 	handled      bool
 	handledCount int
-	handler      = func(name, label string, timeout time.Duration) {
+	handler      = func(tracker *TimeoutTracker) {
 		handled = true
-		handledCount += 1
+		handledCount = len(tracker.Timeouts)
 	}
 	tracker = NewTimeoutTracker("tracker", 10*time.Millisecond)
 )

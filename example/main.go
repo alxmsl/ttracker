@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
-	
+
 	"github.com/alxmsl/ttracker"
 )
 
 func init() {
-	ttracker.DefaultHandler = func(name, label string, timeout time.Duration) {
-		fmt.Println(name, label, timeout)
+	ttracker.DefaultHandler = func(tracker *ttracker.TimeoutTracker) {
+		for _, t := range tracker.Timeouts {
+			fmt.Println(t.Label, t.Duration, t.Elapsed)
+		}
 	}
 }
 

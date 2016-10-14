@@ -5,52 +5,63 @@ import (
 )
 
 type (
-	TimeoutTracker struct {
-		Handler LabelHandler
-		labels  map[string]time.Duration
-		name    string
-
-		started time.Time
-		timeout time.Duration
+	Timeout struct {
+		Label    string
+		Duration time.Duration
+		Elapsed  time.Duration
 	}
 
-	LabelHandler func(name, label string, timeout time.Duration)
+	TimeoutTracker struct {
+		Duration time.Duration
+		Handler  LabelHandler
+		Name     string
+		Timeouts []Timeout
+
+		last      time.Time
+		started   time.Time
+		threshold time.Duration
+	}
+
+	LabelHandler func(tracker *TimeoutTracker)
 )
 
 var (
 	DefaultHandler LabelHandler
 )
 
-func NewTimeoutTracker(name string, timeout time.Duration) *TimeoutTracker {
+func NewTimeoutTracker(name string, threshold time.Duration) *TimeoutTracker {
 	return &TimeoutTracker{
-		Handler: DefaultHandler,
+		Handler:  DefaultHandler,
+		Name:     name,
+		Timeouts: []Timeout{},
 
-		name:    name,
-		timeout: timeout,
+		threshold: threshold,
 	}
 }
 
-func Start(name string, timeout time.Duration) *TimeoutTracker {
-	return NewTimeoutTracker(name, timeout).Start()
+func Start(name string, threshold time.Duration) *TimeoutTracker {
+	return NewTimeoutTracker(name, threshold).Start()
 }
 
 func (t *TimeoutTracker) Track(label string) {
-	t.labels[label] = time.Since(t.started)
+	now := time.Now()
+	t.Timeouts = append(t.Timeouts, Timeout{
+		Label:    label,
+		Duration: now.Sub(t.last),
+		Elapsed:  now.Sub(t.started),
+	})
+	t.last = now
 }
 
 func (t *TimeoutTracker) Start() *TimeoutTracker {
-	t.started = time.Now()
-	t.labels = map[string]time.Duration{}
+	t.last = time.Now()
+	t.started = t.last
 	return t
 }
 
 func (t *TimeoutTracker) Stop() {
-	timeout := time.Since(t.started)
-	if timeout >= t.timeout {
-		if t.Handler != nil {
-			for l, tm := range t.labels {
-				t.Handler(t.name, l, tm)
-			}
-		}
+	t.Duration = time.Since(t.started)
+	if t.Duration >= t.threshold && t.Handler != nil {
+		t.Handler(t)
 	}
 }
