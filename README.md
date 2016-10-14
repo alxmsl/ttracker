@@ -13,9 +13,11 @@ For example, you have program which is going to request database and
 ```go
 // You have to define default handler for breakdown timeouts
 func init() {
-    ttracker.DefaultHandler = func(name, label string, timeout time.Duration) {
-        fmt.Println(name, label, timeout)
-    }
+	ttracker.DefaultHandler = func(tracker *ttracker.TimeoutTracker) {
+		for _, t := range tracker.Timeouts {
+			fmt.Println(t.Label, t.Duration, t.Elapsed)
+		}
+	}
 }
 
 func handleRequest() {
