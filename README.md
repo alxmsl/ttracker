@@ -42,8 +42,9 @@ This code will write to standard output tracker name, tracking label and
 Example output will be like this
 
 ```
-my_tracker storage 85.147435ms
-my_tracker calculations 176.854402ms
+my_tracker tracker timings:
+storage 82.520609ms 82.520609ms
+calculations 89.155301ms 171.67591ms
 ```
 
 See the source code [here](example/main.go)

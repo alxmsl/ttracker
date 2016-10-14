@@ -10,6 +10,7 @@ import (
 
 func init() {
 	ttracker.DefaultHandler = func(tracker *ttracker.TimeoutTracker) {
+		fmt.Println(tracker.Name, "tracker timings:")
 		for _, t := range tracker.Timeouts {
 			fmt.Println(t.Label, t.Duration, t.Elapsed)
 		}
